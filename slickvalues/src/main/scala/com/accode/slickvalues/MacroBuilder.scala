@@ -9,7 +9,8 @@ object MacroBuilder {
     new MacroBuilder[c.type](c)(params).sql
 }
 
-class MacroBuilder[C <: blackbox.Context](val c: C)(inputParams: Seq[C#Tree]) extends TreeBuilder[C] {
+class MacroBuilder[C <: blackbox.Context](val c: C)(inputParams: Seq[C#Tree])
+    extends TreeBuilder[C] {
   import c.universe._
 
   def sql: Tree = {
@@ -32,13 +33,13 @@ class MacroBuilder[C <: blackbox.Context](val c: C)(inputParams: Seq[C#Tree]) ex
     val (modParts, modParams) = parts
       .zip(params)
       .foldLeft(List.empty[(Tree, Tree)]) {
-        case (acc, (part @ LStr(partStr), param)) =>
-          if (!paramMatches(param))
-            (part, param) :: acc
-          else
-            (LStr("#"), q"$tmQueryManipulation($param)") ::
-              (LStr(partStr + "("), param) ::
-              acc
+        case (acc, (LStr(partStr), param)) if paramMatches(param) =>
+          val after  = (LStr("#"), q"$tmQueryManipulation($param)")
+          val before = (LStr(partStr + "("), param)
+          after :: before :: acc
+
+        case (acc, (part, param)) =>
+          (part, param) :: acc
       }
       .reverse
       .unzip
@@ -51,12 +52,8 @@ class MacroBuilder[C <: blackbox.Context](val c: C)(inputParams: Seq[C#Tree]) ex
     !tc.equalsStructure(EmptyTree)
   }
 
-  private def constructSqlInterpolation(parts: List[Tree], params: List[Tree]): Tree = {
-    val strCtx = q"$tmStringContext(..$parts)"
-    val res    = q"new $tpActionBasedSQLInterpolation($strCtx).sql(..$params)"
-    info(s"\nRES: $res\n    ${showRaw(res)}")
-    res
-  }
+  private def constructSqlInterpolation(parts: List[Tree], params: List[Tree]): Tree =
+    q"new $tpSlickInterpolation($tmStringContext(..$parts)).sql(..$params)"
 
   private def info(msg: String): Unit =
     c.info(c.enclosingPosition, msg, force = true)
@@ -64,9 +61,9 @@ class MacroBuilder[C <: blackbox.Context](val c: C)(inputParams: Seq[C#Tree]) ex
   private def abort(msg: String): Nothing =
     c.abort(c.enclosingPosition, msg)
 
-  private val tpActionBasedSQLInterpolation = mkType[ActionBasedSQLInterpolation]
-  private val tpSetValuesParameter          = mkType[SetValuesParameter[_]]
-  private val tmStringContext               = mkTerm[StringContext]
-  private val tmImplicitly                  = mkTerm("scala.Predef.implicitly")
-  private val tmQueryManipulation           = mkTerm[QueryManipulation.type]
+  private val tpSlickInterpolation = mkType[ActionBasedSQLInterpolation]
+  private val tpSetValuesParameter = mkType[SetValuesParameter[_]]
+  private val tmStringContext      = mkTerm[StringContext]
+  private val tmImplicitly         = mkTerm("scala.Predef.implicitly")
+  private val tmQueryManipulation  = mkTerm[QueryManipulation.type]
 }

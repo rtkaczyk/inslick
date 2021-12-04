@@ -5,7 +5,7 @@ import scala.language.experimental.macros
 import scala.language.higherKinds
 
 object api {
-  implicit class MVSqlInterpolator(val s: StringContext) extends AnyVal {
+  implicit class SqlVInterpolator(val s: StringContext) extends AnyVal {
     def sqlv(params: Any*): SQLActionBuilder = macro MacroBuilder.impl
   }
 
