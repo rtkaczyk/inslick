@@ -1,33 +1,41 @@
 import Dependencies._
-import sbt.Keys.crossScalaVersions
 
 ThisBuild / version      := "0.1.0-SNAPSHOT"
 ThisBuild / organization := "com.accode"
+ThisBuild / testFrameworks += new TestFramework("zio.test.sbt.ZTestFramework")
 
 lazy val root = project
   .in(file("."))
   .settings(
-    name           := "root",
-    publish / skip := true
+    name                := "root",
+    publish / aggregate := false,
+    scalacOptions ++= List("-feature", "-deprecation", "-unchecked")
   )
-  .aggregate(slickvalues)
+  .aggregate(slickvalues, tests)
 
 lazy val slickvalues = project
   .in(file("slickvalues"))
   .settings(
-    name                := "slickvalues",
+    scalaVersion        := scala211,
     crossScalaVersions  := scalaVersions,
-    libraryDependencies := scalaReflect(scalaVersion.value) :: List(slickBase, zioTest, zioTestSbt),
-    testFrameworks += new TestFramework("zio.test.sbt.ZTestFramework")
+    libraryDependencies := List(scalaReflect(scalaVersion.value), slick % Provided)
   )
 
-//lazy val testCommon = project
-//  .in(file("testCommon"))
-//  .settings(
-//    name                := "testCommon",
-//    crossScalaVersions  := scalaVersions,
-//    libraryDependencies := List(slickBase)
-//  )
+lazy val tests = project
+  .in(file("tests"))
+  .settings(
+    scalaVersion       := scala211,
+    crossScalaVersions := scalaVersions,
+    libraryDependencies := List(
+      slick,
+      h2,
+      postgres,
+      logback,
+      zioTest,
+      zioTestSbt
+    )
+  )
+  .dependsOn(slickvalues)
 
 // Uncomment the following for publishing to Sonatype.
 // See https://www.scala-sbt.org/1.x/docs/Using-Sonatype.html for more detail.
