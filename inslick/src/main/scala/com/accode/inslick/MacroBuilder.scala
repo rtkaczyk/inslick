@@ -1,4 +1,4 @@
-package com.accode.slickvalues
+package com.accode.inslick
 
 import slick.jdbc.ActionBasedSQLInterpolation
 

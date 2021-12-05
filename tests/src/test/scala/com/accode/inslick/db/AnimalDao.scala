@@ -1,4 +1,4 @@
-package com.accode.slickvalues.db
+package com.accode.inslick.db
 import slick.jdbc.JdbcProfile
 
 import scala.concurrent.ExecutionContext

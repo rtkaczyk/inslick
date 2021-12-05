@@ -1,4 +1,4 @@
-package com.accode.slickvalues.db
+package com.accode.inslick.db
 import slick.basic.DatabaseConfig
 import slick.dbio.DBIO
 import slick.jdbc.JdbcProfile

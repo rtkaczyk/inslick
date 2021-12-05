@@ -1,7 +1,7 @@
-package com.accode.slickvalues
+package com.accode.inslick
 
-import com.accode.slickvalues.api._
-import com.accode.slickvalues.db.{Animal, DbProvider}
+import com.accode.inslick.api._
+import com.accode.inslick.db.{Animal, DbProvider}
 import zio.test._
 import zio.test.Assertion.equalTo
 

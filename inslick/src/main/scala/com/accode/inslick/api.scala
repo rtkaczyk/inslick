@@ -1,4 +1,4 @@
-package com.accode.slickvalues
+package com.accode.inslick
 import slick.jdbc.{SQLActionBuilder, SetParameter}
 
 import scala.language.experimental.macros
@@ -12,5 +12,5 @@ object api {
   def setValues[C[U >: T] <: Iterable[U], T: SetParameter]: SetValuesParameter[C[T]] =
     SetValuesParameter((xs: C[T]) => xs)
 
-  type SetValuesParameter[V] = com.accode.slickvalues.SetValuesParameter[V]
+  type SetValuesParameter[V] = com.accode.inslick.SetValuesParameter[V]
 }

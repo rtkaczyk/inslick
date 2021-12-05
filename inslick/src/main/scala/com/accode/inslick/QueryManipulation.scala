@@ -1,4 +1,4 @@
-package com.accode.slickvalues
+package com.accode.inslick
 
 object QueryManipulation {
   def apply[C: SetValuesParameter](xs: C): String = {

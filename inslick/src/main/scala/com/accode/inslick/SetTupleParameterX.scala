@@ -1,4 +1,4 @@
-package com.accode.slickvalues
+package com.accode.inslick
 
 import slick.jdbc.{PositionedParameters, SetParameter}
 
@@ -20,7 +20,8 @@ object SetTupleParameterX {
           implicitly[SetParameter[B]].apply(b, pp)
       }
 
-    implicit def setTuple3[A: SetParameter, B: SetParameter, C: SetParameter]: SetTupleParameterX[(A, B, C)] =
+    implicit def setTuple3[A: SetParameter, B: SetParameter, C: SetParameter]
+        : SetTupleParameterX[(A, B, C)] =
       SetTupleParameterX[(A, B, C)](3) {
         case ((a, b, c), pp) =>
           implicitly[SetParameter[A]].apply(a, pp)

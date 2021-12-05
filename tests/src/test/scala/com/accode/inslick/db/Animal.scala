@@ -1,4 +1,4 @@
-package com.accode.slickvalues.db
+package com.accode.inslick.db
 
 case class Animal(id: Int, name: String, kind: String, legs: Int, hasTail: Boolean) {
   def tuple: Animal.Tuple = (id, name, kind, legs, hasTail)

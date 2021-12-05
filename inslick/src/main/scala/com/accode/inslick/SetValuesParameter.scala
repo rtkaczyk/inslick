@@ -1,4 +1,4 @@
-package com.accode.slickvalues
+package com.accode.inslick
 
 import slick.jdbc.{PositionedParameters, SetParameter, SetTupleParameter}
 
@@ -7,7 +7,8 @@ import scala.language.higherKinds
 abstract class SetValuesParameter[C](val size: C => Int, val dim: Int) extends SetParameter[C]
 
 object SetValuesParameter {
-  def apply[C[_ >: A], A: SetParameter](toIterable: C[A] => Iterable[A]): SetValuesParameter[C[A]] = {
+  def apply[C[_ >: A], A: SetParameter](toIterable: C[A] => Iterable[A])
+      : SetValuesParameter[C[A]] = {
     val dim: Int = implicitly[SetParameter[A]] match {
       case t: SetTupleParameter[_] => t.children.size
       case _                       => 1

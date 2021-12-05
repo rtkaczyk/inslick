@@ -1,4 +1,4 @@
-package com.accode.slickvalues
+package com.accode.inslick
 import scala.reflect.macros.blackbox
 
 trait TreeBuilder[C <: blackbox.Context] {

@@ -11,10 +11,10 @@ lazy val root = project
     publish / aggregate := false,
     scalacOptions ++= List("-feature", "-deprecation", "-unchecked")
   )
-  .aggregate(slickvalues, tests)
+  .aggregate(inslick, tests)
 
-lazy val slickvalues = project
-  .in(file("slickvalues"))
+lazy val inslick = project
+  .in(file("inslick"))
   .settings(
     scalaVersion        := scala211,
     crossScalaVersions  := scalaVersions,
@@ -35,7 +35,7 @@ lazy val tests = project
       zioTestSbt
     )
   )
-  .dependsOn(slickvalues)
+  .dependsOn(inslick)
 
 // Uncomment the following for publishing to Sonatype.
 // See https://www.scala-sbt.org/1.x/docs/Using-Sonatype.html for more detail.
