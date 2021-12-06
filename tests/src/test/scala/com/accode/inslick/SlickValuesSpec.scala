@@ -10,7 +10,7 @@ abstract class SlickValuesSpec(path: String) extends DefaultRunnableSpec {
   import provider._
 
   def spec = suite(s"SqlVInterpolator for $name")(
-    testM("simple query") {
+    testM("select all") {
 
       implicit val svp: SetValuesParameter[List[Animal.Tuple]] = setValues
 
