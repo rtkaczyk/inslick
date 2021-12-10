@@ -9,23 +9,10 @@ object Dependencies {
 
   val slick = "com.typesafe.slick" %% "slick" % "3.3.3"
 
-  //  def oldSchool: Unit = {
-  //    val ps = dbConfig.db.createSession().prepareStatement(
-  //      "select count(*) from animal a where (a.has_tail, a.id) in (values (?, ?), (?, ?))"
-  //    )
-  //    Animal.all.take(2).zipWithIndex.foreach { case (a, i) =>
-  //      ps.setBoolean(2 * i + 1, a.hasTail)
-  //      ps.setInt(2 * i + 2, a.id)
-  //    }
-  //    val res  = ps.executeQuery()
-  //    var rows = 0
-  //    while (res.next()) { rows += 1 }
-  //    println(s"PREPARED STATEMENT RESULTS: $rows")
-  //    ps.closeOnCompletion()
-  //  }
-  // val h2       = "com.h2database" % "h2"         % "2.0.202" % Test
-  val h2       = "com.h2database" % "h2"         % "1.4.200" % Test
-  val postgres = "org.postgresql" % "postgresql" % "42.3.1"  % Test
+  val h2       = "com.h2database" % "h2"                   % "1.4.200"  % Test
+  val postgres = "org.postgresql" % "postgresql"           % "42.3.1"   % Test
+  val mysql    = "mysql"          % "mysql-connector-java" % "8.0.25"   % Test
+  val sqlite   = "org.xerial"     % "sqlite-jdbc"          % "3.36.0.2" % Test
 
   val logback = "ch.qos.logback" % "logback-classic" % "1.2.7" % Test
 

@@ -31,7 +31,8 @@ RUN set -eux; \
     chown -R postgres:postgres /usr/lib/postgresql; \
     su postgres -c initdb; \
     echo "listen_addresses = '*'" >> $PGDATA/postgresql.conf; \
-    echo "host all all 0.0.0.0/0 trust" >> $PGDATA/pg_hba.conf
+    echo "host all all 0.0.0.0/0 trust" >> $PGDATA/pg_hba.conf; \
+    echo "bind-address = 0.0.0.0" >> /etc/mysql/mysql.conf.d/mysqld.cnf
 
 
 EXPOSE 5432/tcp
@@ -40,4 +41,5 @@ EXPOSE 3306/tcp
 ENTRYPOINT set -ex; \
            su postgres -c "pg_ctl start"; \
            mysqld -u root -D; \
+           mysql -u root -e "CREATE USER 'root'@'%'; GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' WITH GRANT OPTION; FLUSH PRIVILEGES;"; \
            /bin/bash

@@ -30,6 +30,8 @@ lazy val tests = project
       slick,
       h2,
       postgres,
+      mysql,
+      sqlite,
       logback,
       zioTest,
       zioTestSbt
