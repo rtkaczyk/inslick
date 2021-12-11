@@ -7,6 +7,8 @@ jobs:
       - image: cimg/openjdk:11.0
       - image: cimg/mysql:8.0
       - image: cimg/postgres:14.0
+      - image: cimg/mariadb:10.6
+        command: [--port=3307]
 
     working_directory: ~/repo
 
@@ -22,9 +24,9 @@ jobs:
           keys:
             - v1-dependencies-{{
                 checksum "build.sbt" }}-{{
-                checksum "project/Dependencies.scala }}-{{
-                checksum "project/plugins.sbt }}-{{
-                checksum "project/build.properties }}
+                checksum "project/Dependencies.scala" }}-{{
+                checksum "project/plugins.sbt" }}-{{
+                checksum "project/build.properties" }}
 
       - run: sbt +Test/compile
 
@@ -33,8 +35,8 @@ jobs:
             - ~/.ivy2
           key: v1-dependencies-{{
                  checksum "build.sbt" }}-{{
-                 checksum "project/Dependencies.scala }}-{{
-                 checksum "project/plugins.sbt }}-{{
-                 checksum "project/build.properties }}
+                 checksum "project/Dependencies.scala" }}-{{
+                 checksum "project/plugins.sbt" }}-{{
+                 checksum "project/build.properties" }}
 
       - run: sbt +test
