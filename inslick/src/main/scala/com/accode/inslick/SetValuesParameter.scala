@@ -21,4 +21,7 @@ object SetValuesParameter {
         toIterable(c).foreach(x => implicitly[SetParameter[A]].apply(x, pp))
     }
   }
+
+  def apply[C[B >: A] <: Iterable[B], A: SetParameter]: SetValuesParameter[C[A]] =
+    apply((xs: C[A]) => xs)
 }

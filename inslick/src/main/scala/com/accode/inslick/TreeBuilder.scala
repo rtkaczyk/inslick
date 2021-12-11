@@ -5,8 +5,12 @@ trait TreeBuilder[C <: blackbox.Context] {
   val c: C
   import c.universe._
 
+  class LStr private (val tree: Tree) {
+    def const: String = LStr.unapply(tree).get
+  }
+
   object LStr {
-    def apply(s: String): Tree = Literal(Constant(s))
+    def apply(s: String): LStr = new LStr(Literal(Constant(s)))
     def unapply(t: Tree): Option[String] = t match {
       case Literal(Constant(s: String)) => Some(s)
       case _                            => None

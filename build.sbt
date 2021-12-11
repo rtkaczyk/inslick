@@ -3,6 +3,7 @@ import Dependencies._
 ThisBuild / version      := "0.1.0-SNAPSHOT"
 ThisBuild / organization := "com.accode"
 ThisBuild / testFrameworks += new TestFramework("zio.test.sbt.ZTestFramework")
+ThisBuild / scalacOptions ++= List("-feature", "-deprecation", "-unchecked")
 
 lazy val root = project
   .in(file("."))

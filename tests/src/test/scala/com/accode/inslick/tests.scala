@@ -1,7 +1,7 @@
 package com.accode.inslick
 
-object H2Spec       extends SlickValuesSpec("h2")
-object PostgresSpec extends SlickValuesSpec("postgres")
-object MysqlSpec    extends SlickValuesSpec("mysql")
-object MariadbSpec  extends SlickValuesSpec("mariadb")
-object SqliteSpec   extends SlickValuesSpec("sqlite")
+object H2Spec       extends SqliSpec("h2")
+object PostgresSpec extends SqliSpec("postgres")
+object MysqlSpec    extends SqliSpec("mysql")
+object MariadbSpec  extends SqliSpec("mariadb")
+object SqliteSpec   extends SqliSpec("sqlite")

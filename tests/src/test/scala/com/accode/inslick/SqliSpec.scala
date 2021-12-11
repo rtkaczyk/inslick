@@ -5,20 +5,20 @@ import com.accode.inslick.db.{Animal, DbProvider}
 import zio.test._
 import zio.test.Assertion.equalTo
 
-abstract class SlickValuesSpec(path: String) extends DefaultRunnableSpec {
+abstract class SqliSpec(path: String) extends DefaultRunnableSpec {
   val provider = new DbProvider(path)
   import provider._
 
-  def spec = suite(s"SqlVInterpolator for $name")(
+  def spec = suite(s"SqliInterpolator for $path")(
     testM("select all") {
 
-      implicit val svp: SetValuesParameter[List[Animal.Tuple]] = setValues
+      // implicit val svp: SetValuesParameter[List[Animal.Tuple]] = setValues
 
       val values = Animal.all.map(_.tuple)
 
       val query =
-        sqlv"""select count(*) from animal a
-               where (a.id, a.name, a.kind, a.legs, a.has_tail) in (values $values)"""
+        sqli"""select count(*) from animal a
+               where (a.id, a.name, a.kind, a.legs, a.has_tail) in *$values"""
           .as[Int]
 
       val result = for {

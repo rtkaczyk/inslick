@@ -5,7 +5,6 @@ import slick.jdbc.JdbcProfile
 import zio.Task
 
 import scala.concurrent.ExecutionContext
-import scala.language.higherKinds
 
 class DbProvider(configPath: String) {
   private val dbConfig = DatabaseConfig.forConfig[JdbcProfile](configPath)

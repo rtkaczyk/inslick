@@ -1,21 +1,30 @@
 package com.accode.inslick
 
-object QueryManipulation {
-  def apply[C: SetValuesParameter](xs: C): String = {
-    val vsp = implicitly[SetValuesParameter[C]]
-    apply(vsp.size(xs), vsp.dim)
-  }
+class QueryManipulation[C: SetValuesParameter](xs: C) {
+  private val ev   = implicitly[SetValuesParameter[C]]
+  private val size = ev.size(xs)
+  private val dim  = ev.dim
 
-  def apply(size: Int, dim: Int): String = {
-    require(size > 0, "Cannot construct VALUES for empty collection")
-    require(dim > 0, "Row dimension must be positive")
+  require(size > 0, "Cannot construct rows for empty collection")
+  require(dim > 0, "Row dimension must be positive")
 
+  def before: String =
+    dim match {
+      case 1 => "("
+      case _ => "(row("
+    }
+
+  def after: String =
     dim match {
       case 1 =>
-        (", ?" * size).drop(3) + ")"
+        row(size).drop("(?".length)
 
       case _ =>
-        (s", (${(", ?" * dim).drop(2)})" * size).drop(4)
+        List.fill(size)("row" + row(dim))
+          .mkString("(", ", ", ")")
+          .drop("(row(?".length)
     }
-  }
+
+  private def row(size: Int): String =
+    "(?" + ", ?" * (size - 1) + ")"
 }

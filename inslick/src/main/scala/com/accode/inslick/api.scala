@@ -6,7 +6,7 @@ import scala.language.higherKinds
 
 object api {
   implicit class SqlVInterpolator(val s: StringContext) extends AnyVal {
-    def sqlv(params: Any*): SQLActionBuilder = macro MacroBuilder.impl
+    def sqli(params: Any*): SQLActionBuilder = macro MacroBuilder.impl
   }
 
   def setValues[C[U >: T] <: Iterable[U], T: SetParameter]: SetValuesParameter[C[T]] =
