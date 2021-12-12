@@ -14,7 +14,7 @@ object MacroSqli {
 }
 
 class MacroSqli[C <: blackbox.Context](val c: C)(inputParams: Seq[C#Tree])
-    extends TreeBuilder[C] {
+    extends TreeUtils[C] {
   import c.universe._
 
   private case class ExpandedQuery(
@@ -91,7 +91,7 @@ class MacroSqli[C <: blackbox.Context](val c: C)(inputParams: Seq[C#Tree])
 
   private def defineImplicit(param: Type): ValDef = {
     val name = TermName(c.freshName("__svp"))
-    q"implicit val $name: $tpSetValuesParameter[$param] = $tmSetValuesParameter.apply"
+    q"implicit val $name: $tpSetValuesParameter[$param] = $tmSetValuesParameter()"
       .asInstanceOf[ValDef]
   }
 
@@ -128,8 +128,8 @@ class MacroSqli[C <: blackbox.Context](val c: C)(inputParams: Seq[C#Tree])
     c.abort(c.enclosingPosition, msg)
 
   private val tpSlickInterpolation = mkType[ActionBasedSQLInterpolation]
-  private val tpSetValuesParameter = mkType[SetValuesParameter[_]]
-  private val tmSetValuesParameter = mkTerm[SetValuesParameter[_]]
+  private val tpSetValuesParameter = mkType[InParameter[_]]
+  private val tmSetValuesParameter = mkTerm[InParameter[_]]
   private val tmStringContext      = mkTerm[StringContext]
   private val tmImplicitly         = mkTerm("scala.Predef.implicitly")
   private val tpQueryManipulation  = mkType[QueryManipulation[_]]

@@ -1,16 +1,29 @@
 package com.accode.inslick
-import slick.jdbc.{SQLActionBuilder, SetParameter}
+import com.accode.inslick.ApiDef.SqliInterpolator
+import slick.jdbc.SQLActionBuilder
 
 import scala.language.experimental.macros
-import scala.language.higherKinds
+import scala.language.implicitConversions
 
-object api {
-  implicit class SqlVInterpolator(val s: StringContext) extends AnyVal {
+trait ApiDef extends ApiCommon {
+  implicit def sqliInterpolator(s: StringContext): SqliInterpolator =
+    new SqliInterpolator(s)
+}
+
+object ApiDef {
+  class SqliInterpolator(val s: StringContext) extends AnyVal {
     def sqli(params: Any*): SQLActionBuilder = macro MacroSqli.impl
   }
+}
 
-  def setValues[C[U >: T] <: Iterable[U], T: SetParameter]: SetValuesParameter[C[T]] =
-    SetValuesParameter((xs: C[T]) => xs)
+object api extends ApiDef
 
-  type SetValuesParameter[V] = com.accode.inslick.SetValuesParameter[V]
+object rows {
+  object api extends ApiDef
+}
+
+object values {
+  object api extends ApiDef {
+    override implicit val formatSeries = FormatSeries.Values
+  }
 }

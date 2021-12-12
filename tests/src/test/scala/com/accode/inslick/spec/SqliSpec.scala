@@ -1,24 +1,23 @@
-package com.accode.inslick
+package com.accode.inslick.spec
 
-import com.accode.inslick.api._
-import com.accode.inslick.db.{Animal, DbProvider}
-import zio.test._
+import com.accode.inslick.data.Animal
+import com.accode.inslick.db.DbProvider
 import zio.test.Assertion.equalTo
+import zio.test._
 
-abstract class SqliSpec(path: String) extends DefaultRunnableSpec {
-  val provider = new DbProvider(path)
+abstract class SqliSpec(db: Db) extends DefaultRunnableSpec {
+  val provider = new DbProvider(db.path)
+  import db.api._
   import provider._
 
-  def spec = suite(s"SqliInterpolator for $path")(
+  def spec = suite(s"SqliInterpolator for ${db.path}")(
     testM("select all") {
-
-      // implicit val svp: SetValuesParameter[List[Animal.Tuple]] = setValues
 
       val values = Animal.all.map(_.tuple)
 
       val query =
         sqli"""select count(*) from animal a
-               where (a.id, a.name, a.kind, a.legs, a.has_tail) in *$values"""
+               where (a.id, a.name, a.kind, a.legs, a.has_tail, created, updated) in *$values"""
           .as[Int]
 
       val result = for {

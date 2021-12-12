@@ -1,18 +1,15 @@
 services:
   postgres:
     image: cimg/postgres:14.0
-    restart: always
     ports:
       - 5432:5432
 
   mysql:
     image: cimg/mysql:8.0
-    restart: always
     ports:
       - 3306:3306
 
   mariadb:
     image: cimg/mariadb:10.6
-    restart: always
     ports:
       - 3307:3306

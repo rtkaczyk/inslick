@@ -1,30 +1,33 @@
 package com.accode.inslick
 
-class QueryManipulation[C: SetValuesParameter](xs: C) {
-  private val ev   = implicitly[SetValuesParameter[C]]
-  private val size = ev.size(xs)
-  private val dim  = ev.dim
-
+class QueryManipulation[C](xs: C)(implicit p: InParameter[C], fs: FormatSeries) {
+  private val size = p.size(xs)
+  private val dim  = p.dim
+  private val fp   = p.fp.formats
   require(size > 0, "Cannot construct rows for empty collection")
   require(dim > 0, "Row dimension must be positive")
 
+  private lazy val b4Series         = s"(${fs.series + fs.row}("
+  private lazy val b4FirstP: String = fp(1).takeWhile(_ != '?')
+
+  private def mkRow(size: Int): String =
+    List.tabulate(size)(i => fp(i + 1)).mkString("(", ", ", ")")
+
   def before: String =
     dim match {
-      case 1 => "("
-      case _ => "(row("
+      case 1 => "(" + b4FirstP
+      case _ => b4Series + b4FirstP
     }
 
   def after: String =
     dim match {
       case 1 =>
-        row(size).drop("(?".length)
+        mkRow(size).drop(s"($b4FirstP?".length)
 
       case _ =>
-        List.fill(size)("row" + row(dim))
-          .mkString("(", ", ", ")")
-          .drop("(row(?".length)
+        val row = fs.row + mkRow(dim)
+        List.fill(size)(row)
+          .mkString("(" + fs.series, ", ", ")")
+          .drop(b4Series.length + b4FirstP.length + 1)
     }
-
-  private def row(size: Int): String =
-    "(?" + ", ?" * (size - 1) + ")"
 }

@@ -1,7 +1,7 @@
 package com.accode.inslick
 import scala.reflect.macros.blackbox
 
-trait TreeBuilder[C <: blackbox.Context] {
+trait TreeUtils[C <: blackbox.Context] {
   val c: C
   import c.universe._
 
