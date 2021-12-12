@@ -60,7 +60,7 @@ class MacroSqli[C <: blackbox.Context](val c: C)(inputParams: Seq[C#Tree])
         expQ.copy(part :: expQ.parts).reverse
 
       case (_, _) =>
-        abort("Invalid StringContext")
+        abort("Invalid StringContext (parts.size != params.size + 1")
     }
 
   private def expandParam(part: LStr, param: Tree, expQ: ExpandedQuery): ExpandedQuery = {
@@ -90,14 +90,14 @@ class MacroSqli[C <: blackbox.Context](val c: C)(inputParams: Seq[C#Tree])
   }
 
   private def defineImplicit(param: Type): ValDef = {
-    val name = TermName(c.freshName("__svp"))
-    q"implicit val $name: $tpSetValuesParameter[$param] = $tmSetValuesParameter()"
+    val name = TermName(c.freshName("__inParam"))
+    q"implicit val $name: $tpInParameter[$param] = $tmInParameter()"
       .asInstanceOf[ValDef]
   }
 
   private def implicitAvailable(param: Type): Boolean = {
-    val svp = tq"$tpSetValuesParameter[$param]"
-    val tc  = c.typecheck(q"$tmImplicitly[$svp]", silent = true)
+    val ip = tq"$tpInParameter[$param]"
+    val tc = c.typecheck(q"$tmImplicitly[$ip]", silent = true)
     !tc.equalsStructure(EmptyTree)
   }
 
@@ -116,9 +116,7 @@ class MacroSqli[C <: blackbox.Context](val c: C)(inputParams: Seq[C#Tree])
   private def constructSqlInterpolation(expQ: ExpandedQuery): Tree = {
     val sc  = q"$tmStringContext(..${expQ.parts.map(_.tree)})"
     val sql = q"new $tpSlickInterpolation($sc).sql(..${expQ.params})"
-    val res = q"{..${expQ.aux};$sql}"
-    // info(res.toString)
-    res
+    q"{..${expQ.aux};$sql}"
   }
 
   private def info(msg: String): Unit =
@@ -128,8 +126,8 @@ class MacroSqli[C <: blackbox.Context](val c: C)(inputParams: Seq[C#Tree])
     c.abort(c.enclosingPosition, msg)
 
   private val tpSlickInterpolation = mkType[ActionBasedSQLInterpolation]
-  private val tpSetValuesParameter = mkType[InParameter[_]]
-  private val tmSetValuesParameter = mkTerm[InParameter[_]]
+  private val tpInParameter        = mkType[InParameter[_]]
+  private val tmInParameter        = mkTerm[InParameter[_]]
   private val tmStringContext      = mkTerm[StringContext]
   private val tmImplicitly         = mkTerm("scala.Predef.implicitly")
   private val tpQueryManipulation  = mkType[QueryManipulation[_]]

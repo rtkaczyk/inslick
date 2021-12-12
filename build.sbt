@@ -2,33 +2,32 @@ import Dependencies._
 
 ThisBuild / version      := "0.1.0-SNAPSHOT"
 ThisBuild / organization := "com.accode"
-ThisBuild / testFrameworks += new TestFramework("zio.test.sbt.ZTestFramework")
+
+ThisBuild / crossScalaVersions := scalaVersions
 ThisBuild / scalacOptions ++= List("-feature", "-deprecation", "-unchecked")
+ThisBuild / testFrameworks += new TestFramework("zio.test.sbt.ZTestFramework")
 
 lazy val root = project
   .in(file("."))
   .settings(
-    name                := "root",
-    publish / aggregate := false,
-    scalacOptions ++= List("-feature", "-deprecation", "-unchecked")
+    name                       := "root",
+    scalaVersion               := scala211,
+    publish / aggregate        := false,
+    Global / parallelExecution := false
   )
-  .aggregate(inslick, tests)
+  .aggregate(inslick, testCommonAll, testCommon31, testCommon33, test33, test32, test31, test30)
 
 lazy val inslick = project
   .in(file("inslick"))
   .settings(
-    scalaVersion        := scala211,
-    crossScalaVersions  := scalaVersions,
-    libraryDependencies := List(scalaReflect(scalaVersion.value), slick % Provided)
+    libraryDependencies := List(scalaReflect(scalaVersion.value), slick33 % Provided)
   )
 
-lazy val tests = project
-  .in(file("tests"))
+lazy val testCommonAll = project
+  .in(file("test-common-all"))
   .settings(
-    scalaVersion       := scala211,
-    crossScalaVersions := scalaVersions,
     libraryDependencies := List(
-      slick,
+      slick33 % Provided,
       h2,
       postgres,
       mysql,
@@ -40,6 +39,52 @@ lazy val tests = project
     )
   )
   .dependsOn(inslick)
+
+lazy val testCommon33 = project
+  .in(file("test-common-33"))
+  .settings(
+    libraryDependencies ++= List(slick33 % Provided)
+  )
+  .dependsOn(testCommonAll % "test->test")
+
+lazy val testCommon31 = project
+  .in(file("test-common-31"))
+  .settings(
+    crossScalaVersions := List(scala211),
+    libraryDependencies ++= List(slick31 % Provided)
+  )
+  .dependsOn(testCommonAll % "test->test")
+
+lazy val test33 = project
+  .in(file("test-33"))
+  .settings(
+    libraryDependencies += slick33
+  )
+  .dependsOn(testCommon33 % "test->test")
+
+lazy val test32 = project
+  .in(file("test-32"))
+  .settings(
+    crossScalaVersions := List(scala211, scala212),
+    libraryDependencies += slick32
+  )
+  .dependsOn(testCommon33 % "test->test")
+
+lazy val test31 = project
+  .in(file("test-31"))
+  .settings(
+    crossScalaVersions := List(scala211),
+    libraryDependencies += slick31
+  )
+  .dependsOn(testCommon31 % "test->test")
+
+lazy val test30 = project
+  .in(file("test-30"))
+  .settings(
+    crossScalaVersions := List(scala211),
+    libraryDependencies += slick30
+  )
+  .dependsOn(testCommon31 % "test->test")
 
 // Uncomment the following for publishing to Sonatype.
 // See https://www.scala-sbt.org/1.x/docs/Using-Sonatype.html for more detail.
