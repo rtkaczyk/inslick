@@ -1,34 +1,45 @@
 package com.accode.inslick.spec
 
-import com.accode.inslick.data.Animal
-import com.accode.inslick.db.DbProvider
+import com.accode.inslick.data.{Animal, Queries}
+import com.accode.inslick.db.{AnimalDao, DatabaseProvider}
+import zio._
+import zio.clock.Clock
 import zio.test.Assertion.equalTo
+import zio.test.TestAspect._
 import zio.test._
 
-abstract class SqliSpec(db: Db) extends DefaultRunnableSpec {
-  val provider = new DbProvider(db.path)
-  import db.api._
-  import provider._
+abstract class SqliSpec extends DefaultRunnableSpec {
+  def spec = suite(s"SqliSpec")(
+    dbSuites: _*
+  ) @@ parallel
 
-  def spec = suite(s"SqliInterpolator for ${db.path}")(
-    testM("select all") {
+  def dbSuites = Db.all.map(new DbSuite(_).dbSuite)
 
-      val values = Animal.all.map(_.tuple)
+  class DbSuite(db: Db) {
+    val provider = new DatabaseProvider(db.path)
+    val queries  = new Queries(db.api)
+    import provider._
 
-      val query =
-        sqli"""select count(*) from animal a
-               where (a.id, a.name, a.kind, a.legs, a.has_tail, created, updated) in *$values"""
-          .as[Int]
-
-      val result = for {
-        _   <- dao.drop
-        _   <- dao.create
-        _   <- dao.insertAll(Animal.all)
-        res <- query
-        rows = res.headOption.getOrElse(0)
-      } yield assert(rows)(equalTo(Animal.all.size))
-
-      result.zio
+    val tests = queries.all.map { q =>
+      testM(q.name) {
+        q.query.zio.map { r =>
+          assert(r.headOption.getOrElse(0))(equalTo(q.excpectedN))
+        }
+      }
     }
-  )
+
+    val initData: Task[Unit] = {
+      import provider._
+      (for {
+        _ <- dao.drop
+        _ <- dao.create
+        _ <- dao.insertAll(Animal.all)
+      } yield ()).zio
+    }
+
+    val dbSuite = suite(s"SqliInterpolator for ${db.path}")(
+      tests: _*
+    ) @@ sequential @@ beforeAll(initData)
+  }
+
 }

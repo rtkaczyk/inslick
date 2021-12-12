@@ -9,7 +9,7 @@ jobs:
 
       - image: cimg/postgres:14.0
 
-      - image: cimg/postgres:9.5
+      - image: cimg/postgres:9.6
         command: [--port=5433]
 
       - image: cimg/mariadb:10.6

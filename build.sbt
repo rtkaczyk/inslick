@@ -34,6 +34,7 @@ lazy val tests = project
       mysql,
       sqlite,
       logback,
+      sourceCode,
       zioTest,
       zioTestSbt
     )

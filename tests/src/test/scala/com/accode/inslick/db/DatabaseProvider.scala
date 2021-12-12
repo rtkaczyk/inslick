@@ -1,13 +1,11 @@
 package com.accode.inslick.db
 import slick.basic.DatabaseConfig
-import slick.jdbc.{JdbcProfile, SetParameter}
+import slick.jdbc.JdbcProfile
 import zio.Task
 
-import java.sql.{Date, Timestamp}
-import java.time.{LocalDate, LocalDateTime}
 import scala.concurrent.ExecutionContext
 
-class DbProvider(configPath: String) {
+class DatabaseProvider(configPath: String) {
   private val dbConfig = DatabaseConfig.forConfig[JdbcProfile](configPath)
 
   val database: JdbcProfile#Backend#Database = dbConfig.db
@@ -23,10 +21,4 @@ class DbProvider(configPath: String) {
   implicit class RunAction[R](dbio: DBIO[R]) {
     def zio: Task[R] = Task.fromFuture(_ => database.run(dbio))
   }
-
-  implicit val localDateSP: SetParameter[LocalDate] =
-    SetParameter((d, pp) => pp.setDate(Date.valueOf(d)))
-
-  implicit val localDateTimeSP: SetParameter[LocalDateTime] =
-    SetParameter((d, pp) => pp.setTimestamp(Timestamp.valueOf(d)))
 }

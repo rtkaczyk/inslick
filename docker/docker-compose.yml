@@ -1,8 +1,13 @@
 services:
-  postgres:
+  postgres14:
     image: cimg/postgres:14.0
     ports:
       - 5432:5432
+
+  postgres9:
+    image: cimg/postgres:9.6
+    ports:
+      - 5433:5432
 
   mysql:
     image: cimg/mysql:8.0
