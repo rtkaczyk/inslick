@@ -22,21 +22,17 @@ jobs:
 
       - restore_cache:
           keys:
-            - v1-dependencies-{{
+            - v01-dependencies-{{
                 checksum "build.sbt" }}-{{
-                checksum "project/Dependencies.scala" }}-{{
-                checksum "project/plugins.sbt" }}-{{
-                checksum "project/build.properties" }}
+                checksum "project/Dependencies.scala" }}
 
       - run: sbt +Test/compile
 
       - save_cache:
           paths:
             - ~/.ivy2
-          key: v1-dependencies-{{
+          key: v01-dependencies-{{
                  checksum "build.sbt" }}-{{
-                 checksum "project/Dependencies.scala" }}-{{
-                 checksum "project/plugins.sbt" }}-{{
-                 checksum "project/build.properties" }}
+                 checksum "project/Dependencies.scala" }}
 
       - run: sbt +test

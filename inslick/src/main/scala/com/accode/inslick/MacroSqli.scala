@@ -1,27 +1,27 @@
 package com.accode.inslick
 
-import com.accode.inslick.MacroBuilder.Expand
+import com.accode.inslick.MacroSqli.Expand
 import slick.jdbc.ActionBasedSQLInterpolation
 
 import scala.annotation.tailrec
 import scala.reflect.macros.blackbox
 
-object MacroBuilder {
+object MacroSqli {
   def impl(c: blackbox.Context)(params: c.Tree*): c.Tree =
-    new MacroBuilder[c.type](c)(params).sqli
+    new MacroSqli[c.type](c)(params).sqli
 
   val Expand = '*'
 }
 
-class MacroBuilder[C <: blackbox.Context](val c: C)(inputParams: Seq[C#Tree])
+class MacroSqli[C <: blackbox.Context](val c: C)(inputParams: Seq[C#Tree])
     extends TreeBuilder[C] {
   import c.universe._
 
-  case class ExpandedQuery(
+  private case class ExpandedQuery(
       parts: List[LStr],
       params: List[Tree],
       aux: List[ValDef],
-      types: List[TypeTree]
+      types: List[Type]
   ) {
     def reverse = ExpandedQuery(parts.reverse, params.reverse, aux.reverse, types)
   }
@@ -34,13 +34,13 @@ class MacroBuilder[C <: blackbox.Context](val c: C)(inputParams: Seq[C#Tree])
     constructSqlInterpolation(expanded)
   }
 
-  private def extractStringParts: List[LStr] = {
-    val Apply(Select(Apply(_, List(Apply(_, strParts))), _), _) = c.macroApplication
-    strParts.map {
-      case l @ LStr(s) => LStr(s)
-      case _           => abort("StringContext parts must be String literals")
+  private def extractStringParts: List[LStr] =
+    c.macroApplication match {
+      case q"$_($_(..${parts: List[String]})).$_(..$_)" =>
+        parts.map(LStr(_))
+      case _ =>
+        abort("Invalid sqli macro usage (hint: StringContext parts must be String literals")
     }
-  }
 
   @tailrec
   private def expandQuery(
@@ -64,10 +64,13 @@ class MacroBuilder[C <: blackbox.Context](val c: C)(inputParams: Seq[C#Tree])
     }
 
   private def expandParam(part: LStr, param: Tree, expQ: ExpandedQuery): ExpandedQuery = {
-    val paramType = TypeTree(param.tpe)
+    val pType = param.tpe
+
     val svpTree =
-      if (expQ.types.exists(_.equalsStructure(paramType)) || implicitAvailable(paramType)) Nil
-      else List(defineImplicit(paramType))
+      if (expQ.types.exists(_ =:= pType) || implicitAvailable(pType))
+        Nil
+      else
+        List(defineImplicit(pType))
 
     val (qm, qmTree) = defineQM(param)
     val aux          = qmTree :: svpTree
@@ -82,17 +85,17 @@ class MacroBuilder[C <: blackbox.Context](val c: C)(inputParams: Seq[C#Tree])
       newParts ::: expQ.parts,
       newParams ::: expQ.params,
       aux ::: expQ.aux,
-      svpTree.map(_ => paramType) ::: expQ.types
+      svpTree.map(_ => pType) ::: expQ.types
     )
   }
 
-  private def defineImplicit(param: TypeTree): ValDef = {
+  private def defineImplicit(param: Type): ValDef = {
     val name = TermName(c.freshName("__svp"))
     q"implicit val $name: $tpSetValuesParameter[$param] = $tmSetValuesParameter.apply"
       .asInstanceOf[ValDef]
   }
 
-  private def implicitAvailable(param: TypeTree): Boolean = {
+  private def implicitAvailable(param: Type): Boolean = {
     val svp = tq"$tpSetValuesParameter[$param]"
     val tc  = c.typecheck(q"$tmImplicitly[$svp]", silent = true)
     !tc.equalsStructure(EmptyTree)
@@ -114,7 +117,7 @@ class MacroBuilder[C <: blackbox.Context](val c: C)(inputParams: Seq[C#Tree])
     val sc  = q"$tmStringContext(..${expQ.parts.map(_.tree)})"
     val sql = q"new $tpSlickInterpolation($sc).sql(..${expQ.params})"
     val res = q"{..${expQ.aux};$sql}"
-    info(res.toString)
+    // info(res.toString)
     res
   }
 
