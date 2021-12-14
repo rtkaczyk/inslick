@@ -35,6 +35,7 @@ jobs:
       - save_cache:
           paths:
             - ~/.ivy2
+            - ~/.cache
           key: v01-dependencies-{{
                  checksum "build.sbt" }}-{{
                  checksum "project/Dependencies.scala" }}

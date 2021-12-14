@@ -1,4 +1,4 @@
 package com.accode.inslick.spec
-import com.accode.inslick.db.DatabaseProvider33
+import com.accode.inslick.slick.SqlRunner
 
-object Tests extends SqliSpec(DatabaseProvider33)
+object Tests extends SqliSpec(SqlRunner("3.2"))

@@ -1,5 +1,4 @@
 package com.accode.inslick.spec
-
 import com.accode.inslick.{API, api}
 
 case class DbDef(path: String, api: API)

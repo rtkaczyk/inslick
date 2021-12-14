@@ -1,14 +1,14 @@
 package com.accode.inslick.data
 import com.accode.inslick.API
-import com.accode.inslick.db.DatabaseProvider
+import com.accode.inslick.slick.SqlRunner
 import slick.jdbc.SetParameter
 
 import java.sql.{Date, Timestamp}
 import java.time.{LocalDate, LocalDateTime}
 
-class Queries(api: API, provider: DatabaseProvider) {
+class Queries(api: API, sqlRunner: SqlRunner) {
   import api._
-  import provider._
+  import sqlRunner._
 
   private implicit val localDateSP: SetParameter[LocalDate] =
     SetParameter((d, pp) => pp.setDate(Date.valueOf(d)))
