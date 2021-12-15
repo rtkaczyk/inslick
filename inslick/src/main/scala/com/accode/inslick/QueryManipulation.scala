@@ -11,7 +11,10 @@ class QueryManipulation[C](xs: C)(implicit p: InParameter[C], fs: FormatSeries) 
   private lazy val b4FirstP: String = fp(1).takeWhile(_ != '?')
 
   private def mkRow(size: Int): String =
-    List.tabulate(size)(i => fp(i + 1)).mkString("(", ", ", ")")
+    List.tabulate(size) { i =>
+      val idx = if (dim == 1) 1 else i + 1
+      fp(idx)
+    }.mkString("(", ", ", ")")
 
   def before: String =
     dim match {

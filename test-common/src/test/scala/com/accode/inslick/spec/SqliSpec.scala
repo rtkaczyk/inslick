@@ -14,7 +14,7 @@ abstract class SqliSpec(sqlRunnerFactory: SqlRunner.Factory) extends DefaultRunn
   def dbSuites = DbDef.all.map(new DbSuite(_).dbSuite)
 
   class DbSuite(db: DbDef) {
-    val queries = new Queries(db.api, sqlRunnerFactory(db.path))
+    val queries = new Queries(db, sqlRunnerFactory(db.path))
     val tests = queries.all.map { q =>
       testM(q.name) {
         q.query.map { r =>

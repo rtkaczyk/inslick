@@ -12,12 +12,13 @@ class AnimalDao(val slick33: Slick33) {
     def id      = column[Int]("id", O.PrimaryKey)
     def name    = column[String]("name")
     def kind    = column[String]("kind")
+    def alias   = column[Option[String]]("alias")
     def legs    = column[Int]("legs")
     def hasTail = column[Boolean]("has_tail")
     def created = column[LocalDate]("created")
     def updated = column[LocalDateTime]("updated", SqlType("timestamp"))
 
-    def * = (id, name, kind, legs, hasTail, created, updated) <>
+    def * = (id, name, kind, alias, legs, hasTail, created, updated) <>
       ((Animal.apply _).tupled, Animal.unapply)
   }
 
