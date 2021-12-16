@@ -1,13 +1,16 @@
 package accode.inslick
 
-class QueryManipulation[C](xs: C)(implicit p: IterParam[C], fs: FormatSeries) {
+class QueryManipulation[C] private (xs: C, fs: FormatSeries, p: IterParam[C]) {
   private val size = p.size(xs)
   private val dim  = p.dim
   private val fp   = p.fp.formats
   require(size > 0, "Cannot construct rows for empty collection")
   require(dim > 0, "Row dimension must be positive")
 
-  private lazy val b4Series         = s"(${fs.series + fs.row}("
+  private def parenBefore = "(".filter(_ => fs.parens)
+  private def parenAfter  = ")".filter(_ => fs.parens)
+
+  private lazy val b4Series         = s"$parenBefore${fs.series + fs.row}("
   private lazy val b4FirstP: String = fp(1).takeWhile(_ != '?')
 
   private def mkRow(size: Int): String =
@@ -30,7 +33,15 @@ class QueryManipulation[C](xs: C)(implicit p: IterParam[C], fs: FormatSeries) {
       case _ =>
         val row = fs.row + mkRow(dim)
         List.fill(size)(row)
-          .mkString("(" + fs.series, ", ", ")")
+          .mkString(parenBefore + fs.series, ", ", parenAfter)
           .drop(b4Series.length + b4FirstP.length + 1)
     }
+}
+
+object QueryManipulation {
+  def apply[C](fs: FormatSeries, xs: C)(implicit p: IterParam[C]): QueryManipulation[C] =
+    new QueryManipulation[C](xs, fs, p)
+
+  def apply[C](xs: C)(implicit fs: FormatSeries, p: IterParam[C]): QueryManipulation[C] =
+    new QueryManipulation[C](xs, fs, p)
 }

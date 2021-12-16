@@ -8,6 +8,8 @@ trait TreeUtils[C <: blackbox.Context] {
 
   class LStr private (val tree: Tree) {
     def const: String = LStr.unapply(tree).get
+
+    override def toString: String = s""""$const""""
   }
 
   object LStr {

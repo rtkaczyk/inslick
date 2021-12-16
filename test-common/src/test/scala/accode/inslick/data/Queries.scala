@@ -16,6 +16,13 @@ class Queries(db: DbDef, slick: Slick) {
   private implicit val localDateTimeSP: SetParameter[LocalDateTime] =
     SetParameter((d, pp) => pp.setTimestamp(Timestamp.valueOf(d)))
 
+  val reinsertAnimalAll = {
+    val v  = Animal.all.map(_.tuple)
+    val q1 = sqli"delete from animal where ${1}**${1} = 1".count
+    val q2 = sqli"insert into animal values *i$v".count
+    Query(q1 *> q2, v.size)
+  }
+
   val selectAll = {
     val v = Animal.all.map(_.tuple)
     val q = sqli"""
@@ -103,6 +110,7 @@ class Queries(db: DbDef, slick: Slick) {
   }
 
   val all = List(
+    reinsertAnimalAll,
     selectAll,
     selectName,
     selectWithOptional,

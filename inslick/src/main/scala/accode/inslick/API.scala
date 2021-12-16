@@ -11,9 +11,9 @@ abstract class API(fs: FormatSeries) {
 
   implicit val formatSeries: FormatSeries = fs
 
-  type InParameter[C] = IterParam[C]
+  type IterParam[C] = accode.inslick.IterParam[C]
 
-  def iterParam[C[U >: T] <: Iterable[U], T: SetParameter]: InParameter[C[T]] =
+  def iterParam[C[U >: T] <: Iterable[U], T: SetParameter]: IterParam[C[T]] =
     IterParam((xs: C[T]) => xs)
 }
 

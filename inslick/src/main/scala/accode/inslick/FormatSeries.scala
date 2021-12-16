@@ -3,7 +3,7 @@ package accode.inslick
 class FormatSeries(val series: String, val row: String, val parens: Boolean)
 
 object FormatSeries {
-  val Rows   = new FormatSeries("", "row", parens = true)
-  val Values = new FormatSeries("values ", "", parens = true)
-  val Insert = new FormatSeries("", "", parens = false)
+  object Rows   extends FormatSeries("", "row", parens = true)
+  object Values extends FormatSeries("values ", "", parens = true)
+  object Insert extends FormatSeries("", "", parens = false)
 }

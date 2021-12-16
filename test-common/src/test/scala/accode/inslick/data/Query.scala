@@ -1,9 +1,9 @@
 package accode.inslick.data
 import zio.Task
 
-case class Query(query: Task[Int], name: String, expected: Int)
+case class Query[T](query: Task[T], name: String, expected: T)
 
 object Query {
-  def apply(q: Task[Int], n: Int)(implicit name: sourcecode.Name): Query =
-    Query(q, name.value, n)
+  def apply[T](q: Task[T], e: T)(implicit name: sourcecode.Name): Query[T] =
+    Query(q, name.value, e)
 }

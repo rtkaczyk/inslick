@@ -1,5 +1,5 @@
 package accode.inslick
-import accode.inslick.MacroSqli.Expand
+import accode.inslick.MacroSqli._
 import slick.jdbc.ActionBasedSQLInterpolation
 
 import scala.annotation.tailrec
@@ -9,7 +9,13 @@ object MacroSqli {
   def impl(c: blackbox.Context)(params: c.Tree*): c.Tree =
     new MacroSqli[c.type](c)(params).sqli
 
-  val Expand = '*'
+  private sealed abstract class Expand(val c: Char) {
+    def s = c.toString
+  }
+  private case object Expand  extends Expand('*')
+  private case object ExpandR extends Expand('r')
+  private case object ExpandV extends Expand('v')
+  private case object ExpandI extends Expand('i')
 }
 
 class MacroSqli[C <: blackbox.Context](val c: C)(inputParams: Seq[C#Tree])
@@ -49,11 +55,13 @@ class MacroSqli[C <: blackbox.Context](val c: C)(inputParams: Seq[C#Tree])
   ): ExpandedQuery =
     (parts, params) match {
       case (part :: remParts, param :: remParams) =>
-        val (escaped, expand) = escape(part)
-        if (expand)
-          expandQuery(remParts, remParams, expandParam(escaped, param, expQ))
-        else
+        val (escaped, doExpand) = escape(part)
+        val nextExpQ = doExpand.fold {
           expQ.copy(escaped :: expQ.parts, param :: expQ.params)
+        } { expand =>
+          expandParam(escaped, param, expQ, expand)
+        }
+        expandQuery(remParts, remParams, nextExpQ)
 
       case (part :: Nil, Nil) =>
         expQ.copy(part :: expQ.parts).reverse
@@ -62,7 +70,12 @@ class MacroSqli[C <: blackbox.Context](val c: C)(inputParams: Seq[C#Tree])
         abort("Invalid StringContext (parts.size != params.size + 1")
     }
 
-  private def expandParam(part: LStr, param: Tree, expQ: ExpandedQuery): ExpandedQuery = {
+  private def expandParam(
+      part: LStr,
+      param: Tree,
+      expQ: ExpandedQuery,
+      expand: Expand
+  ): ExpandedQuery = {
     val pType = param.tpe
 
     val svpTree =
@@ -71,7 +84,7 @@ class MacroSqli[C <: blackbox.Context](val c: C)(inputParams: Seq[C#Tree])
       else
         List(defineImplicit(pType))
 
-    val (qm, qmTree) = defineQM(param)
+    val (qm, qmTree) = defineQM(param, expand)
     val aux          = qmTree :: svpTree
 
     val left   = LStr(part.const + "#") -> q"$qm.before"
@@ -100,16 +113,29 @@ class MacroSqli[C <: blackbox.Context](val c: C)(inputParams: Seq[C#Tree])
     !tc.equalsStructure(EmptyTree)
   }
 
-  private def defineQM(param: Tree): (TermName, ValDef) = {
+  private def defineQM(param: Tree, expand: Expand): (TermName, ValDef) = {
     val name = TermName(c.freshName("__qm"))
-    name -> q"val $name = new $tpQueryManipulation($param)".asInstanceOf[ValDef]
+    val qm = expand match {
+      case Expand  => q"$tmQueryManipulation($param)"
+      case ExpandR => q"$tmQueryManipulation($tmFormatRows, $param)"
+      case ExpandV => q"$tmQueryManipulation($tmFormatValues, $param)"
+      case ExpandI => q"$tmQueryManipulation($tmFormatInsert, $param)"
+    }
+    name -> q"val $name = $qm".asInstanceOf[ValDef]
   }
 
-  private def escape(part: LStr): (LStr, Boolean) = {
-    val c = part.const.reverse.takeWhile(_ == Expand).length
-    val e = c % 2 == 1
-    val s = part.const.dropRight(c) + Expand.toString * (c / 2)
-    (LStr(s), e)
+  private def escape(part: LStr): (LStr, Option[Expand]) = {
+    val expandCandidate =
+      List(ExpandR, ExpandV, ExpandI)
+        .find(e => part.const.lastOption.contains(e.c))
+        .getOrElse(Expand)
+
+    val toEscape = if (expandCandidate == Expand) part.const else part.const.dropRight(1)
+    val escLen   = toEscape.reverse.takeWhile(_ == Expand.c).length
+    val doExpand = escLen % 2 == 1
+    val escaped  = toEscape.dropRight(escLen) + Expand.s * (escLen / 2)
+
+    (LStr(escaped), if (doExpand) Some(expandCandidate) else None)
   }
 
   private def constructSqlInterpolation(expQ: ExpandedQuery): Tree = {
@@ -129,5 +155,8 @@ class MacroSqli[C <: blackbox.Context](val c: C)(inputParams: Seq[C#Tree])
   private val tmInParameter        = mkTerm[IterParam[_]]
   private val tmStringContext      = mkTerm[StringContext]
   private val tmImplicitly         = mkTerm("scala.Predef.implicitly")
-  private val tpQueryManipulation  = mkType[QueryManipulation[_]]
+  private val tmQueryManipulation  = mkTerm[QueryManipulation[_]]
+  private val tmFormatRows         = mkTerm[FormatSeries.Rows.type]
+  private val tmFormatValues       = mkTerm[FormatSeries.Values.type]
+  private val tmFormatInsert       = mkTerm[FormatSeries.Insert.type]
 }
