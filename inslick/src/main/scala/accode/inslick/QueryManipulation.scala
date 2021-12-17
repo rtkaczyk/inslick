@@ -7,8 +7,8 @@ class QueryManipulation[C] private (xs: C, fs: FormatSeries, p: IterParam[C]) {
   require(size > 0, "Cannot construct rows for empty collection")
   require(dim > 0, "Row dimension must be positive")
 
-  private def parenBefore = "(".filter(_ => fs.parens)
-  private def parenAfter  = ")".filter(_ => fs.parens)
+  private val parenBefore = "(".filter(_ => fs.parens)
+  private val parenAfter  = ")".filter(_ => fs.parens)
 
   private lazy val b4Series         = s"$parenBefore${fs.series + fs.row}("
   private lazy val b4FirstP: String = fp(1).takeWhile(_ != '?')
@@ -27,7 +27,7 @@ class QueryManipulation[C] private (xs: C, fs: FormatSeries, p: IterParam[C]) {
 
   def after: String =
     dim match {
-      case 1 =>
+      case 1 if fs.parens =>
         mkRow(size).drop(s"($b4FirstP?".length)
 
       case _ =>

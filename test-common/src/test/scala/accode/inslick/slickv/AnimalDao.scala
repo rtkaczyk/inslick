@@ -10,7 +10,7 @@ class AnimalDao(val slick33: Slick33) {
   import profile.api._
 
   class TblAnimal(tag: Tag) extends Table[Animal](tag, "animal") {
-    def id      = column[Int]("id", O.PrimaryKey)
+    def id      = column[Long]("id", O.PrimaryKey)
     def name    = column[String]("name")
     def kind    = column[String]("kind")
     def alias   = column[Option[String]]("alias")

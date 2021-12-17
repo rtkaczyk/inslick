@@ -16,7 +16,7 @@ abstract class SqliSpec(slickF: Slick.Factory) extends DefaultRunnableSpec {
     val queries = new Queries(db, slickF(db.path))
     val tests = queries.all.map { q =>
       testM(q.name) {
-        q.query.map { r =>
+        q.q.map { r =>
           assert(r)(equalTo(q.expected))
         }
       }

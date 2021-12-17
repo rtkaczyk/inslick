@@ -2,7 +2,7 @@ package accode.inslick.data
 import java.time.{LocalDate, LocalDateTime}
 
 case class Animal(
-    id: Int,
+    id: Long,
     name: String,
     kind: String,
     alias: Option[String],
@@ -12,10 +12,13 @@ case class Animal(
     updated: LocalDateTime
 ) {
   def tuple: Animal.Tuple = Animal.unapply(this).get
+
+  def noOpt: (Long, String, String, Int, Boolean, LocalDate, LocalDateTime) =
+    (id, name, kind, legs, hasTail, created, updated)
 }
 
 object Animal {
-  type Tuple = (Int, String, String, Option[String], Int, Boolean, LocalDate, LocalDateTime)
+  type Tuple = (Long, String, String, Option[String], Int, Boolean, LocalDate, LocalDateTime)
 
   val ld: Long => LocalDate     = LocalDate.parse("2021-01-01").plusDays
   val dt: Long => LocalDateTime = LocalDateTime.parse("2021-02-01T00:00:00").plusDays
