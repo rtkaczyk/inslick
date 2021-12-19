@@ -2,6 +2,8 @@
 
 [![CircleCI](https://circleci.com/gh/rtkaczyk/inslick/tree/main.svg?style=svg)](https://circleci.com/gh/rtkaczyk/inslick/tree/main)
 
+**Note:** the project is currently awaiting its first release which should happen sometime before 2021-12-25.
+
 InSlick is a macro extension to [Slick](https://scala-slick.org/) used with plain SQL queries. 
 It can expand collections into a sequence of arguments to SQL `IN` operator.
 
@@ -30,7 +32,7 @@ However, this is **not safe** from [SQL injection](https://xkcd.com/327/)!
 Add InSlick to your project:
 
 ```scala
-libraryDependencies += "accode" %% "inslick" % "1.0.0"
+libraryDependencies += "io.github.rtkaczyk" %% "inslick" % "1.0.0"
 ```
 
 and use the `sqli` interpolator:
