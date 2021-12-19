@@ -179,9 +179,9 @@ class Queries(db: DbDef, slick: Slick) {
     Query(q, v.size)
   }
 
-  val select_animal_escape = {
+  val select_animal_escape_and_splice = {
     val v = Animal.all.map(_.id)
-    val q = sqli"select count(*) from animal where id in *$v and ${1}**${1} = 1".count
+    val q = sqli"select count(*) from animal where id in *$v and #${1}**${1} = 1".count
     Query(q, v.size)
   }
 
