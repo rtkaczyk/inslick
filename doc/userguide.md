@@ -95,22 +95,21 @@ The prerequisites for returning a custom type are the same as for the standard `
 
 ### Case Classes
 
-Case classes are often used to represent whole rows or their subsets. In that case either map the collection
-elements to tuples or provide an implicit `SetParameter`. Slick already provides implicits for tuples which 
-can be reused. Each element of the case class / tuple must have its own implicit `SetParameter`. Extending
-the example above:
+Case classes are often used to represent whole rows or their subsets. In that case the collection
+elements should be mapped to tuples: 
 
 ```scala
-case class Customer(name: String, rating: Int, status: Status)
+case class Customer(name: String, rating: Int, status: Status) {
+  def tuple: (String, Int, Status)
+}
 val customers: List[Customer] = ???
-implicit val spCustomer = SetParameter[Customer]((c, pp) => 
-  implicitly[SetParameter[(String, Int, Status)]].apply(Customer.unapply(c).get, pp)
-)
+// implicit SetParameter[Status] created in the example above
 
-val q = sqli"SELECT COUNT(*) FROM customer WHERE (name, rating, status) IN *$customers"
+val q = sqli"SELECT COUNT(*) FROM customer WHERE (name, rating, status) IN *${customers.map(_.tuple)}"
 ```
 
-A future release may provide automatic expansion of case classes.
+Alternatively a custom `IterParam[List[Customer]]` may be used, see [here](#macro-expansion). A future 
+release may provide automatic expansion of case classes.
 
 ### UPDATE/DELETE
 
