@@ -1,15 +1,15 @@
 package accode.inslick.spec
-import accode.inslick.{API, api}
+import accode.inslick.{Syntax, rows, syntax, values}
 
-case class DbDef(path: String, api: API)
+case class DbDef(path: String, syntax: Syntax)
 
 object DbDef {
-  val h2         = DbDef("h2", api)
-  val mysql      = DbDef("mysql", API.rows)
-  val mariadb    = DbDef("mariadb", api)
-  val postgres14 = DbDef("postgres14", API.rows)
-  val postgres9  = DbDef("postgres9", api)
-  val sqlite     = DbDef("sqlite", API.values)
+  val h2         = DbDef("h2", syntax)
+  val mysql      = DbDef("mysql", rows.syntax)
+  val mariadb    = DbDef("mariadb", syntax)
+  val postgres14 = DbDef("postgres14", rows.syntax)
+  val postgres9  = DbDef("postgres9", syntax)
+  val sqlite     = DbDef("sqlite", values.syntax)
 
   val all = List(
     h2,

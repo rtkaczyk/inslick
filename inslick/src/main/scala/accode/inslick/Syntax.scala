@@ -1,11 +1,11 @@
 package accode.inslick
-import accode.inslick.API.SqliInterpolator
+import accode.inslick.Syntax.SqliInterpolator
 import slick.jdbc.{SQLActionBuilder, SetParameter}
 
 import scala.language.experimental.macros
 import scala.language.{higherKinds, implicitConversions}
 
-abstract class API(fs: FormatSeries) {
+abstract class Syntax(fs: FormatSeries) {
   implicit def sqliInterpolator(s: StringContext): SqliInterpolator =
     new SqliInterpolator(s)
 
@@ -17,12 +17,8 @@ abstract class API(fs: FormatSeries) {
     IterParam((xs: C[T]) => xs)
 }
 
-object API {
+object Syntax {
   class SqliInterpolator(val s: StringContext) extends AnyVal {
     def sqli(params: Any*): SQLActionBuilder = macro MacroSqli.impl
   }
-
-  object rows extends API(FormatSeries.Rows)
-
-  object values extends API(FormatSeries.Values)
 }

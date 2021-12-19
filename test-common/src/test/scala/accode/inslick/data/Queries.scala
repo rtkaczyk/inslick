@@ -9,7 +9,7 @@ import java.sql.{Date, Timestamp}
 import java.time.{LocalDate, LocalDateTime}
 
 class Queries(db: DbDef, slick: Slick) {
-  import db.api._
+  import db.syntax._
   import slick._
 
   private implicit val localDateSP: SetParameter[LocalDate] =
@@ -169,7 +169,7 @@ class Queries(db: DbDef, slick: Slick) {
   }
 
   val select_animal_explicit_syntax = {
-    import accode.inslick.api._
+    import accode.inslick.syntax._
     val v = Animal.all.map(_.id)
     val q = db.path match {
       case "sqlite" => sqli"select count(*) from animal where id in *v$v".count
