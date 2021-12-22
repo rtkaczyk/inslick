@@ -84,7 +84,7 @@ import accode.inslick.syntax._
 
 case class Status(status: String)
 val v: List[(Int, Status)] = List((1, Status("new")), (2, Status("active")))
-implicit val spInfo = SetParameter[Info]((s, pp) => pp.setString(s.status))
+implicit val spStatus = SetParameter[Status]((s, pp) => pp.setString(s.status))
 
 val q = sqli"SELECT * FROM customer WHERE (rating, status) IN *$v"
 db.run(q.as[Customer])
@@ -142,7 +142,7 @@ For more information see [Syntax Flavours](#syntax-flavours).
 ### Optional/Nullable Values
 
 Care should be taken when using `Option` values, which correspond to nullable columns. The result of the following
-query may unintuitive, in that rows where the specified value `IS NULL` will not be returned:
+query may be unintuitive, in that rows where the specified value is `NULL` will not be returned:
 
 ```sql
 SELECT * FROM customer WHERE name IN ('Tyler', 'Marla', NULL)
@@ -215,7 +215,7 @@ The table below summarises the available syntax flavours:
 
 | Import | Op | Dim-1 | Dim-N | Purpose |
 | --- | --- | --- | --- | --- |
-| `rows.syntax._` | `*r` | `(?, ?, ...)` | `(row(?, ?, ...), row(?, ?, ...), ...` | Most tested DBs |
+| `rows.syntax._` | `*r` | `(?, ?, ...)` | `(row(?, ?, ...), row(?, ?, ...), ...)` | Most tested DBs |
 | `values.syntax._` | `*v` | `(?, ?, ...)` | `(values (?, ?, ...), (?, ?, ...), ...)` | SQLite |
 | N/A | `*i` | `(?), (?), ...` | `(?, ?, ...), (?, ?, ...), ...` | `INSERT` statement |
 | `syntax._` | `*` | same as `rows` | same as `rows` | Most common syntax |

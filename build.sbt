@@ -1,6 +1,6 @@
 import Dependencies._
 
-ThisBuild / version := "1.0.0-SNAPSHOT"
+ThisBuild / version := "1.0.0"
 
 ThisBuild / scalaVersion := scala211
 ThisBuild / scalacOptions ++= List("-feature", "-deprecation", "-unchecked")
@@ -13,7 +13,8 @@ lazy val publishSettings = List(
   homepage          := Some(url("https://github.com/rtkaczyk/inslick")),
   scmInfo           := Some(ScmInfo(homepage.value.get, "git@github.com:rtkaczyk/inslick.git")),
   publishMavenStyle := true,
-  publishTo         := sonatypePublishTo.value,
+  publishTo         := sonatypePublishToBundle.value,
+  sonatypeCredentialHost := "s01.oss.sonatype.org",
   developers := List(
     Developer(
       id = "rtkaczyk",
