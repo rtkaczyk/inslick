@@ -1,6 +1,6 @@
 package accode.inslick
 import accode.inslick.MacroSqli._
-import slick.jdbc.ActionBasedSQLInterpolation
+import slick.jdbc.{ActionBasedSQLInterpolation, SetParameter}
 
 import scala.annotation.tailrec
 import scala.reflect.macros.blackbox
@@ -79,7 +79,7 @@ class MacroSqli[C <: blackbox.Context](val c: C)(inputParams: Seq[C#Tree])
     val pType = param.tpe
 
     val svpTree =
-      if (expQ.types.exists(_ =:= pType) || implicitAvailable(pType))
+      if (expQ.types.exists(_ =:= pType) || implicitAvailable(tpIterParam, pType))
         Nil
       else
         List(defineImplicit(pType))
@@ -102,13 +102,32 @@ class MacroSqli[C <: blackbox.Context](val c: C)(inputParams: Seq[C#Tree])
   }
 
   private def defineImplicit(param: Type): ValDef = {
-    val name = TermName(c.freshName("__iterParam"))
-    q"implicit val $name: $tpInParameter[$param] = $tmInParameter()"
+    val name    = TermName(c.freshName("__iterParam"))
+    val mapping = elemMapping(param)
+    q"implicit val $name: $tpIterParam[$param] = $tmIterParam($tmIdentity, $mapping)"
       .asInstanceOf[ValDef]
   }
 
-  private def implicitAvailable(param: Type): Boolean = {
-    val ip = tq"$tpInParameter[$param]"
+  private def elemMapping(param: Type): Tree =
+    param.typeArgs match {
+      case List(ccType) if isCaseClass(ccType) && !implicitAvailable(tpSetParameter, ccType) =>
+        caseClassMapping(ccType)
+      case _ =>
+        tmIdentity
+    }
+
+  private def isCaseClass(tpe: Type): Boolean =
+    tpe.typeSymbol.isClass && tpe.typeSymbol.asClass.isCaseClass
+
+  private def caseClassMapping(cc: Type): Tree = {
+    val accessors = cc.decls.collect {
+      case m: MethodSymbol if m.isCaseAccessor => q"c.$m: ${m.returnType}"
+    }
+    q"(c: $cc) => (..$accessors)"
+  }
+
+  private def implicitAvailable(typeclass: Tree, param: Type): Boolean = {
+    val ip = tq"$typeclass[$param]"
     val tc = c.typecheck(q"$tmImplicitly[$ip]", silent = true)
     !tc.equalsStructure(EmptyTree)
   }
@@ -151,10 +170,12 @@ class MacroSqli[C <: blackbox.Context](val c: C)(inputParams: Seq[C#Tree])
     c.abort(c.enclosingPosition, msg)
 
   private val tpSlickInterpolation = mkType[ActionBasedSQLInterpolation]
-  private val tpInParameter        = mkType[IterParam[_]]
-  private val tmInParameter        = mkTerm[IterParam[_]]
+  private val tpIterParam          = mkType[IterParam[_]]
+  private val tmIterParam          = mkTerm[IterParam[_]]
+  private val tpSetParameter       = mkType[SetParameter[_]]
   private val tmStringContext      = mkTerm[StringContext]
   private val tmImplicitly         = mkTerm("scala.Predef.implicitly")
+  private val tmIdentity           = mkTerm("scala.Predef.identity")
   private val tmQueryManipulation  = mkTerm[QueryManipulation[_]]
   private val tmFormatRows         = mkTerm[FormatSeries.Rows.type]
   private val tmFormatValues       = mkTerm[FormatSeries.Values.type]

@@ -14,7 +14,13 @@ abstract class Syntax(fs: FormatSeries) {
   type IterParam[C] = accode.inslick.IterParam[C]
 
   def iterParam[C[U >: T] <: Iterable[U], T: SetParameter]: IterParam[C[T]] =
-    IterParam((xs: C[T]) => xs)
+    IterParam(identity, identity)
+
+  def iterParam[C[U >: T] <: Iterable[U], T: SetParameter](dim: Int): IterParam[C[T]] =
+    IterParam(identity, identity, Some(dim))
+
+  def iterParam[C[U >: T] <: Iterable[U], T, V: SetParameter](mapping: T => V): IterParam[C[T]] =
+    IterParam(identity, mapping)
 }
 
 object Syntax {

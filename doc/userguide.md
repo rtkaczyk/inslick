@@ -95,13 +95,12 @@ The prerequisites for returning a custom type are the same as for the standard `
 
 ### Case Classes
 
-Case classes are often used to represent whole rows or their subsets. In that case the collection
-elements should be mapped to tuples: 
+Case classes are often used to represent whole rows or their subsets. InSlick can automatically expand
+case classes in query parameters, as long as all case class fields have a corresponding `SetParameter`
+defined. The order of columns in the query correspond the order of case class fields:
 
 ```scala
-case class Customer(name: String, rating: Int, status: Status) {
-  def tuple: (String, Int, Status)
-}
+case class Customer(name: String, rating: Int, status: Status)
 val customers: List[Customer] = ???
 // implicit SetParameter[Status] created in the example above
 
@@ -154,7 +153,7 @@ Instead, the query should be rewritten as follows:
 SELECT * FROM customer WHERE name IN ('Tyler', 'Marla') OR name IS NULL
 ```
 
-This is simply a note on SQL semantics and has nothing to do with InSlick itself
+This is simply a note on SQL semantics and has nothing to do with InSlick itself.
 
 ### Empty Collections
 Empty collections are not supported. Appropriate guards should be added before running a query or

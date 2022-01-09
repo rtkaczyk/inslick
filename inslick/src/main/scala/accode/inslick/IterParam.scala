@@ -22,20 +22,21 @@ abstract class IterParam[C](val size: C => Int, val dim: Int)
 }
 
 object IterParam {
-  def apply[C[_ >: A], A: SetParameter](toIterable: C[A] => Iterable[A]): IterParam[C[A]] = {
-    val dim: Int = implicitly[SetParameter[A]] match {
+  def apply[C[_ >: A], A, B: SetParameter](
+      toIterable: C[A] => Iterable[A],
+      elemMapping: A => B,
+      dim: Option[Int] = None
+  ): IterParam[C[A]] = {
+    val _dim: Int = implicitly[SetParameter[B]] match {
       case t: SetTupleParameter[_] => t.children.size
-      case _                       => 1
+      case _                       => dim.getOrElse(1)
     }
 
     val size: C[A] => Int = toIterable.andThen(_.size)
 
-    new IterParam[C[A]](size, dim) {
+    new IterParam[C[A]](size, _dim) {
       override def apply(c: C[A], pp: PositionedParameters): Unit =
-        toIterable(c).foreach(x => implicitly[SetParameter[A]].apply(x, pp))
+        toIterable(c).foreach(x => implicitly[SetParameter[B]].apply(elemMapping(x), pp))
     }
   }
-
-  def apply[C[B >: A] <: Iterable[B], A: SetParameter](): IterParam[C[A]] =
-    apply((xs: C[A]) => xs)
 }

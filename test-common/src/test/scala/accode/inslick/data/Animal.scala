@@ -1,4 +1,6 @@
 package accode.inslick.data
+import accode.inslick.data.Animal.NameKind
+
 import java.time.{LocalDate, LocalDateTime}
 
 case class Animal(
@@ -15,10 +17,14 @@ case class Animal(
 
   def noOpt: (Long, String, String, Int, Boolean, LocalDate, LocalDateTime) =
     (id, name, kind, legs, hasTail, created, updated)
+
+  def toNameKind: NameKind = NameKind(name, kind)
 }
 
 object Animal {
   type Tuple = (Long, String, String, Option[String], Int, Boolean, LocalDate, LocalDateTime)
+
+  case class NameKind(name: String, kind: String)
 
   val ld: Long => LocalDate     = LocalDate.parse("2021-01-01").plusDays
   val dt: Long => LocalDateTime = LocalDateTime.parse("2021-02-01T00:00:00").plusDays

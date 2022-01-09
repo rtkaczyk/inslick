@@ -20,17 +20,6 @@ trait TreeUtils[C <: blackbox.Context] {
     }
   }
 
-  protected def asTree(tpe: Type): Tree = tpe match {
-    case TypeRef(_, t, Nil) =>
-      mkType(t)
-
-    case TypeRef(_, t, trs) =>
-      tq"${mkType(t)}[..${trs.map(asTree)}]"
-
-    case _ =>
-      EmptyTree
-  }
-
   protected def mkType[A: TypeTag]: Tree =
     mkType(typeOf[A].typeSymbol)
 

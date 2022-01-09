@@ -8,9 +8,9 @@ import zio.ZIO
 import java.sql.{Date, Timestamp}
 import java.time.{LocalDate, LocalDateTime}
 
-class Queries(db: DbDef, slick: Slick) {
+class Queries(db: DbDef, slickv: Slick) {
   import db.syntax._
-  import slick._
+  import slickv._
 
   private implicit val localDateSP: SetParameter[LocalDate] =
     SetParameter((d, pp) => pp.setDate(Date.valueOf(d)))
@@ -185,6 +185,44 @@ class Queries(db: DbDef, slick: Slick) {
     Query(q, v.size)
   }
 
+  val select_animal_case_class = {
+    val v = Animal.all.map(_.toNameKind)
+    val q = sqli"select count(*) from animal where (name, kind) in *$v".count
+    Query(q, v.size)
+  }
+
+  val select_animal_case_class_custom_setparameter = {
+    val v = Animal.all.map(_.toNameKind)
+
+    implicit val sp: SetParameter[Animal.NameKind] = SetParameter[Animal.NameKind] {
+      (nk, pp) =>
+        pp.setString(nk.name)
+        pp.setString(nk.kind)
+        pp.setBoolean(true)
+    }
+    implicit val ip: IterParam[List[Animal.NameKind]] = iterParam(3)
+
+    val q = sqli"select count(*) from animal where (name, kind, has_tail) in *$v".count
+    Query(q, Animal.all.count(_.hasTail))
+  }
+
+  val select_animal_case_class_custom_iterParam = {
+    val v = Animal.all.map(_.toNameKind)
+
+    implicit val ip: IterParam[List[Animal.NameKind]] = iterParam(nk => (nk.name, nk.kind, true))
+
+    val q = sqli"select count(*) from animal where (name, kind, has_tail) in *$v".count
+    Query(q, Animal.all.count(_.hasTail))
+  }
+
+  val select_animal_case_class_single_field = {
+    case class AName(name: String)
+    val v = Animal.all.map(a => AName(a.name))
+
+    val q = sqli"select count(*) from animal where name in *$v".count
+    Query(q, v.size)
+  }
+
   private val truncatePerson = sqli"delete from person".count.unit
   private val repopulatePerson = {
     val v = Person.all.map(_.tuple)
@@ -197,8 +235,12 @@ class Queries(db: DbDef, slick: Slick) {
     val q2 = sqli"insert into person (first_name) values *i${List("Adam", "Anna")}".count
     val q3 = sqli"insert into person (last_name, shoe_size) values *i${List(("Ada", 37))}".count
 
-    val q = truncatePerson *> ZIO.collectAll(List(q1, q2, q3))
-    Query(q, List(1, 2, 1))
+    case class FullName(first: String, last: String)
+    val v4 = List(FullName("John", "Smith"), FullName("Ada", "Lovelace"))
+    val q4 = sqli"insert into person (first_name, last_name) values *i$v4".count
+
+    val q = truncatePerson *> ZIO.collectAll(List(q1, q2, q3, q4))
+    Query(q, List(1, 2, 1, 2))
   }
 
   val update_person = {
