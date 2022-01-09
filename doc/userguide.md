@@ -34,7 +34,7 @@ In your SBT build file add:
 ```scala
 libraryDependencies ++= Seq(
   "com.typesafe.slick" %% "slick" % <your_version>,
-  "io.github.rtkaczyk" %% "inslick" % "1.0.0"
+  "io.github.rtkaczyk" %% "inslick" % "1.1.0"
 )
 ```
 

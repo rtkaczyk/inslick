@@ -1,6 +1,7 @@
 # InSlick
 
 [![CircleCI](https://circleci.com/gh/rtkaczyk/inslick/tree/main.svg?style=svg)](https://circleci.com/gh/rtkaczyk/inslick/tree/main)
+[![Maven Central](https://img.shields.io/maven-central/v/io.github.rtkaczyk/inslick_2.13.svg?style=plastic)](https://search.maven.org/artifact/io.github.rtkaczyk/inslick_2.13)
 
 InSlick is a macro extension to [Slick](https://scala-slick.org/) used with plain SQL queries. 
 It can expand collections into a sequence of arguments to SQL `IN` operator.
@@ -30,7 +31,7 @@ However, this is **not safe** from [SQL injection](https://xkcd.com/327/)!
 Add InSlick to your project:
 
 ```scala
-libraryDependencies += "io.github.rtkaczyk" %% "inslick" % "1.0.0"
+libraryDependencies += "io.github.rtkaczyk" %% "inslick" % "1.1.0"
 ```
 
 and use the `sqli` interpolator:
