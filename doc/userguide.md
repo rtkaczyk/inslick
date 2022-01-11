@@ -104,11 +104,8 @@ case class Customer(name: String, rating: Int, status: Status)
 val customers: List[Customer] = ???
 // implicit SetParameter[Status] created in the example above
 
-val q = sqli"SELECT COUNT(*) FROM customer WHERE (name, rating, status) IN *${customers.map(_.tuple)}"
+val q = sqli"SELECT COUNT(*) FROM customer WHERE (name, rating, status) IN *$customers"
 ```
-
-Alternatively a custom `IterParam[List[Customer]]` may be used, see [here](#macro-expansion). A future 
-release may provide automatic expansion of case classes.
 
 ### UPDATE/DELETE
 
