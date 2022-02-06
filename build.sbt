@@ -1,6 +1,6 @@
 import Dependencies._
 
-ThisBuild / version := "1.1.0"
+ThisBuild / version := "1.1.1-SNAPSHOT"
 
 ThisBuild / scalaVersion := scala211
 ThisBuild / scalacOptions ++= List("-feature", "-deprecation", "-unchecked")
