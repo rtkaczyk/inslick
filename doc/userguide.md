@@ -157,13 +157,11 @@ Empty collections are not supported. Appropriate guards should be added before r
 an `IllegalArgumentException` will be thrown on runtime:
 
 ```scala
-val ids: List[Int] = ???
+val ids: List[Int] = Nil
 
 lazy val q = sqli"SELECT name FROM customer WHERE id IN *$ids"
 if (ids.isEmpty) DBIO.successful(Vector.empty) else q.as[String]
 ```
-
-This may change in a future release.
 
 ### Escaping
 
