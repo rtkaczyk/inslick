@@ -14,7 +14,7 @@ object Dependencies {
 
   val h2       = "com.h2database" % "h2"                   % "2.0.204"  % Test
   val postgres = "org.postgresql" % "postgresql"           % "42.3.3"   % Test
-  val mysql    = "mysql"          % "mysql-connector-java" % "8.0.25"   % Test
+  val mysql    = "mysql"          % "mysql-connector-java" % "8.0.28"   % Test
   val sqlite   = "org.xerial"     % "sqlite-jdbc"          % "3.36.0.3" % Test
 
   val logback    = "ch.qos.logback" % "logback-classic" % "1.2.10" % Test
