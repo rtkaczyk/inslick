@@ -18,7 +18,7 @@ object Dependencies {
   val sqlite   = "org.xerial"     % "sqlite-jdbc"          % "3.36.0.2" % Test
 
   val logback    = "ch.qos.logback" % "logback-classic" % "1.2.10" % Test
-  val sourceCode = "com.lihaoyi"   %% "sourcecode"      % "0.2.7"  % Test
+  val sourceCode = "com.lihaoyi"   %% "sourcecode"      % "0.2.8"  % Test
   val zioTest    = "dev.zio"       %% "zio-test"        % "1.0.12" % Test
   val zioTestSbt = "dev.zio"       %% "zio-test-sbt"    % "1.0.12" % Test
 
