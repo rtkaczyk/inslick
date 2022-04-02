@@ -19,8 +19,8 @@ object Dependencies {
 
   val logback    = "ch.qos.logback" % "logback-classic" % "1.2.10" % Test
   val sourceCode = "com.lihaoyi"   %% "sourcecode"      % "0.2.7"  % Test
-  val zioTest    = "dev.zio"       %% "zio-test"        % "1.0.12" % Test
-  val zioTestSbt = "dev.zio"       %% "zio-test-sbt"    % "1.0.12" % Test
+  val zioTest    = "dev.zio"       %% "zio-test"        % "1.0.13" % Test
+  val zioTestSbt = "dev.zio"       %% "zio-test-sbt"    % "1.0.13" % Test
 
   def scalaReflect(version: String) = "org.scala-lang" % "scala-reflect" % version
 }
