@@ -12,7 +12,7 @@ object Dependencies {
   val slick31 = "com.typesafe.slick" %% "slick" % "3.1.1"
   val slick30 = "com.typesafe.slick" %% "slick" % "3.0.3"
 
-  val h2       = "com.h2database" % "h2"                   % "2.0.204"  % Test
+  val h2       = "com.h2database" % "h2"                   % "2.0.206"  % Test
   val postgres = "org.postgresql" % "postgresql"           % "42.3.1"   % Test
   val mysql    = "mysql"          % "mysql-connector-java" % "8.0.25"   % Test
   val sqlite   = "org.xerial"     % "sqlite-jdbc"          % "3.36.0.2" % Test
